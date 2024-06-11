@@ -299,6 +299,9 @@ static void terminate(int num)
 {
     // Stop outputting and generating the clock.
     if (clk_reg && gpio_reg && mbox.virt_addr) {
+		// Set GPIO4 to be an output (instead of ALT FUNC 0, which is the clock).
+        gpio_reg[GPFSEL0] = (gpio_reg[GPFSEL0] & ~(7 << 12)) | (1 << 12);
+		
         // Disable the clock generator.
         clk_reg[GPCLK_CNTL] = 0x5A;
         clk_reg[GPCLK_CNTL + GPCLK_STEP*1] = 0x5A;
