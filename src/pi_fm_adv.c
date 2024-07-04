@@ -729,7 +729,8 @@ int main(int argc, char **argv) {
 	int cutoff = 15000;
 	int preemphasis_cutoff = 3185;
 	int pty = 15;
-	int tp = 1;
+	// int tp = 1;
+	int tp = 0;
 	int divc = 0;
 	int prediv = 1;
 
