@@ -85,7 +85,8 @@ int get_rds_ct_group(uint16_t *blocks) {
                   (int)((utc->tm_year - l) * 365.25) +
                   (int)((utc->tm_mon + 2 + l*12) * 30.6001);
 
-        blocks[1] = 0x4400 | (mjd>>15);
+        // blocks[1] = 0x4400 | (mjd>>15);
+        blocks[1] = 0x4000 | (mjd>>15);
         blocks[2] = (mjd<<1) | (utc->tm_hour>>4);
         blocks[3] = (utc->tm_hour & 0xF)<<12 | utc->tm_min<<6;
 
