@@ -1,4 +1,4 @@
-name: Compile PiFmAdv for Raspberry Pi 4 (Bullseye) - Manual
+name: Compile PiFmAdv for Raspberry Pi4 (Bullseye)
 
 on:
   workflow_dispatch: # 允许手动触发工作流
@@ -10,18 +10,9 @@ jobs:
     container:
       image: multiarch/qemu-user-static:register # 注册 QEMU 用户模式仿真
 
-    services:
-      rpi-os:
-        image: balenalib/raspberrypi-4-64-debian:bullseye-run
-        options: >-
-          --health-cmd="echo ok"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-
     steps:
     - name: Checkout repository
-      uses: actions/checkout@main # 检出代码到工作区
+      uses: actions/checkout@v3 # 检出代码到工作区
 
     - name: Install QEMU and dependencies
       run: |
@@ -35,7 +26,7 @@ jobs:
 
     - name: Run Raspberry Pi OS Bullseye container
       run: |
-        docker run --rm -v $(pwd):/workdir -w /workdir balenalib/raspberrypi-4-64-debian:bullseye-run /bin/bash -c "
+        docker run --rm -v $(pwd):/workdir -w /workdir arm64v8/debian:bullseye /bin/bash -c "
           apt-get update &&
           apt-get install -y build-essential libsndfile1-dev libsoxr-dev &&
           cd src &&
@@ -51,11 +42,10 @@ jobs:
         cd src
         DATE=$(date +%Y-%m-%d)
         mv pi_fm_adv pi_fm_adv_${DATE}
-        # tar -czvf pi_fm_adv_${DATE}.tar.gz pi_fm_adv_${DATE}
         echo "date=${DATE}" >> $GITHUB_ENV  # 将日期输出为环境变量
 
     - name: Upload compiled binary as artifact
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v3
       with:
         name: pi_fm_adv_${{ env.date }}  # 引用环境变量中的日期
         path: src/pi_fm_adv_${{ env.date }}
