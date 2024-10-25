@@ -12,13 +12,13 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@main
 
     - name: Set up QEMU for ARM64
-      uses: docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@main
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@main
 
     - name: Build and run ARM64 container
       run: |
@@ -33,7 +33,7 @@ jobs:
         echo "Build successful, binary saved to $BUILD_DIR with date suffix."
 
     - name: Archive artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@main
       with:
         name: pi_fm_adv_binaries
         path: ${{ env.BUILD_DIR }}
