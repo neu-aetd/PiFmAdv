@@ -34,7 +34,7 @@ jobs:
           cd src &&
           make || exit 1
         "
-      shell: /usr/bin/bash -e {0}
+      # shell: /usr/bin/bash -e {0}
 
     - name: Check compiled binary
       run: |
