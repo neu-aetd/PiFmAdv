@@ -3,7 +3,6 @@ STD_CFLAGS = -Wall -Wno-multichar -std=gnu99 -c -O2
 
 # Enable ARM-specific options only on ARM, and compilation of the app only on ARM
 UNAME := $(shell uname -m)
-# PCPUI := $(shell cat /proc/cpuinfo | grep Revision | cut -c16-)
 LSCPU := $(shell lscpu | grep "Model name" | awk '{print $$3}')
 
 # Determine the hardware platform. Below, pi1 stands for the RaspberryPi 1 (the original one),
@@ -48,7 +47,7 @@ waveforms.o: waveforms.c waveforms.h
 mailbox.o: mailbox.c mailbox.h
 	$(CC) $(CFLAGS) mailbox.c
 
-pi_fm_rds.o: pi_fm_adv.c control_pipe.h fm_mpx.h rds.h mailbox.h
+pi_fm_adv.o: pi_fm_adv.c control_pipe.h fm_mpx.h rds.h mailbox.h
 	$(CC) $(CFLAGS) pi_fm_adv.c
 
 rds_wav.o: rds_wav.c
