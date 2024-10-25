@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3 # 检出代码到工作区
+      uses: actions/checkout@main # 检出代码到工作区
 
     - name: Install necessary libraries on runner
       run: |
@@ -28,7 +28,7 @@ jobs:
 
     - name: Run Raspberry Pi OS Bullseye container
       run: |
-        docker run --rm --platform linux/arm64 -v $(pwd):/workdir -w /workdir arm64v8/debian:bullseye /bin/bash -c "
+        docker run --rm --platform linux/arm64 -v $(pwd):/workdir -w /workdir arm64v8/debian:bullseye /bin/sh -c "
           apt-get update &&
           apt-get install -y build-essential libsndfile1-dev libsoxr-dev &&
           cd src &&
@@ -48,7 +48,7 @@ jobs:
         echo "date=${DATE}" >> $GITHUB_ENV
 
     - name: Upload compiled binary as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@main
       with:
         name: pi_fm_adv_${{ env.date }}
         path: src/pi_fm_adv_${{ env.date }}
