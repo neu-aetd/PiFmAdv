@@ -1,52 +1,39 @@
-name: Compile PiFmAdv for Raspberry Pi 4 (Bullseye) - Manual
+name: Build PiFmAdv for Raspberry Pi 4 (arm64)
 
 on:
-  workflow_dispatch: # 允许手动触发工作流
+  workflow_dispatch: # 允许手动触发
 
 jobs:
   build:
-    runs-on: ubuntu-latest # 使用最新的 Ubuntu 运行环境
+    runs-on: ubuntu-latest
+    env:
+      BUILD_DIR: pi_fm_adv_build
+      PROJECT_NAME: pi_fm_adv
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@main # 检出代码到工作区
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    - name: Install necessary libraries on runner
+    - name: Set up QEMU for ARM64
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build and run ARM64 container
       run: |
-        sudo apt-get update && sudo apt-get upgrade -y
-        sudo apt-get install -y libc6-dev
+        docker buildx create --use
+        docker buildx build --platform linux/arm64/v8 -t pi_fm_adv_builder .
+        docker run --rm -v $(pwd):/work -w /work pi_fm_adv_builder bash -c "git clone https://github.com/neu-aetd/PiFmAdv.git && cd PiFmAdv/src && make clean && make"
 
-    - name: Install QEMU and dependencies
+    - name: Copy compiled file and add date
       run: |
-        sudo apt-get update
-        sudo apt-get install -y qemu-user-static binfmt-support
+        mkdir -p $BUILD_DIR
+        cp PiFmAdv/src/${PROJECT_NAME} $BUILD_DIR/${PROJECT_NAME}_$(date +%Y%m%d)
+        echo "Build successful, binary saved to $BUILD_DIR with date suffix."
 
-    - name: Set up QEMU
-      run: |
-        docker run --rm --privileged multiarch/qemu-user-static --reset
-
-    - name: Run Raspberry Pi OS Bullseye container
-      run: |
-        docker run --rm --platform linux/arm64 -v $(pwd):/workdir -w /workdir arm64v8/debian:bullseye /bin/bash -c "
-          apt-get update &&
-          apt-get install -y build-essential libsndfile1-dev libsoxr-dev &&
-          cd src &&
-          make || exit 1
-        "
-
-    - name: Check compiled binary
-      run: |
-        file src/pi_fm_adv
-
-    - name: Rename and archive compiled binary
-      run: |
-        cd src
-        DATE=$(date +%Y-%m-%d)
-        mv pi_fm_adv pi_fm_adv_${DATE}
-        echo "date=${DATE}" >> $GITHUB_ENV
-
-    - name: Upload compiled binary as artifact
-      uses: actions/upload-artifact@main
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v3
       with:
-        name: pi_fm_adv_${{ env.date }}
-        path: src/pi_fm_adv_${{ env.date }}
+        name: pi_fm_adv_binaries
+        path: ${{ env.BUILD_DIR }}
