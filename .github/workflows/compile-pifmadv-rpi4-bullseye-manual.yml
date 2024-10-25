@@ -10,25 +10,11 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@main # 检出代码到工作区
-      # with:
-      #   repository: neu-aetd/PiFmAdv
-      #   # token: ***
-      #   # ssh-strict: true
-      #   # ssh-user: git
-      #   persist-credentials: true
-      #   clean: true
-      #   sparse-checkout-cone-mode: true
-      #   fetch-depth: 1
-      #   fetch-tags: false
-      #   show-progress: true
-      #   lfs: false
-      #   submodules: false
-      #   set-safe-directory: true
 
     - name: Install necessary libraries on runner
       run: |
         sudo apt-get update
-        sudo apt-get install -y libc6 libdl2
+        sudo apt-get install -y libc6 libdl-dev
 
     - name: Install QEMU and dependencies
       run: |
