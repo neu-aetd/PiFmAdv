@@ -1,0 +1,61 @@
+name: Compile PiFmAdv for Raspberry Pi 4 (Bullseye) - Manual
+
+on:
+  workflow_dispatch: # 允许手动触发工作流
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # 使用最新的 Ubuntu 运行环境
+
+    container:
+      image: multiarch/qemu-user-static:register # 注册 QEMU 用户模式仿真
+
+    services:
+      rpi-os:
+        image: balenalib/raspberrypi-4-64-debian:bullseye-run
+        options: >-
+          --health-cmd="echo ok"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@main # 检出代码到工作区
+
+    - name: Install QEMU and dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-user-static binfmt-support
+
+    - name: Set up QEMU
+      run: |
+        docker pull multiarch/qemu-user-static:register
+        docker run --rm --privileged multiarch/qemu-user-static:register --reset
+
+    - name: Run Raspberry Pi OS Bullseye container
+      run: |
+        docker run --rm -v $(pwd):/workdir -w /workdir balenalib/raspberrypi-4-64-debian:bullseye-run /bin/bash -c "
+          apt-get update &&
+          apt-get install -y build-essential libsndfile1-dev libsoxr-dev &&
+          cd src &&
+          make
+        "
+
+    - name: Check compiled binary
+      run: |
+        file src/pi_fm_adv # 检查编译后的二进制文件是否为 ARM64 架构
+
+    - name: Rename and archive compiled binary
+      run: |
+        cd src
+        DATE=$(date +%Y-%m-%d)
+        mv pi_fm_adv pi_fm_adv_${DATE}
+        # tar -czvf pi_fm_adv_${DATE}.tar.gz pi_fm_adv_${DATE}
+        echo "date=${DATE}" >> $GITHUB_ENV  # 将日期输出为环境变量
+
+    - name: Upload compiled binary as artifact
+      uses: actions/upload-artifact@main
+      with:
+        name: pi_fm_adv_${{ env.date }}  # 引用环境变量中的日期
+        path: src/pi_fm_adv_${{ env.date }}
