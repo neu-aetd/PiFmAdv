@@ -27,7 +27,7 @@ endif
 ifneq ($(TARGET), other)
 
 app: rds.o waveforms.o pi_fm_adv.o fm_mpx.o control_pipe.o mailbox.o
-	$(CC) -o pi_fm_adv rds.o waveforms.o mailbox.o pi_fm_adv.o fm_mpx.o control_pipe.o -lm -lsndfile -lsoxr
+	$(CC) -o fm-rds-sg rds.o waveforms.o mailbox.o pi_fm_adv.o fm_mpx.o control_pipe.o -lm -lsndfile -lsoxr
 
 endif
 
