@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@main # 检出代码到工作区
+      uses: actions/checkout@v3 # 检出代码到工作区
 
     - name: Install necessary libraries on runner
       run: |
@@ -32,22 +32,22 @@ jobs:
           apt-get update &&
           apt-get install -y build-essential libsndfile1-dev libsoxr-dev &&
           cd src &&
-          make
+          make || exit 1
         "
 
     - name: Check compiled binary
       run: |
-        file src/pi_fm_adv # 检查编译后的二进制文件是否为 ARM64 架构
+        file src/pi_fm_adv
 
     - name: Rename and archive compiled binary
       run: |
         cd src
         DATE=$(date +%Y-%m-%d)
         mv pi_fm_adv pi_fm_adv_${DATE}
-        echo "date=${DATE}" >> $GITHUB_ENV  # 将日期输出为环境变量
+        echo "date=${DATE}" >> $GITHUB_ENV
 
     - name: Upload compiled binary as artifact
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v3
       with:
-        name: pi_fm_adv_${{ env.date }}  # 引用环境变量中的日期
+        name: pi_fm_adv_${{ env.date }}
         path: src/pi_fm_adv_${{ env.date }}
